@@ -23,8 +23,12 @@ DJANGO_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 ]
-THIRD_PARTY_APPS: list[str] = []
-LOCAL_APPS: list[str] = []
+THIRD_PARTY_APPS = [
+    "ninja",
+]
+LOCAL_APPS = [
+    "apps.core",
+]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
@@ -76,3 +80,9 @@ STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# API
+API_DOCS_ENABLED = env.bool("API_DOCS_ENABLED", default=True)
+NINJA_PAGINATION_CLASS = "apps.core.pagination.PageNumberPagination"
+NINJA_PAGINATION_PER_PAGE = 25
+NINJA_PAGINATION_MAX_PER_PAGE_SIZE = 100

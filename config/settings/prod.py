@@ -4,6 +4,9 @@ from .base import env
 
 DEBUG = False
 
+# Interactive docs list every endpoint; keep them off in production unless explicitly enabled.
+API_DOCS_ENABLED = env.bool("API_DOCS_ENABLED", default=False)
+
 # TLS terminates at the load balancer, which sets X-Forwarded-Proto (NFR-01).
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = env.bool("DJANGO_SECURE_SSL_REDIRECT", default=True)
