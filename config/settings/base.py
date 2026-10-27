@@ -80,6 +80,37 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+# Uploaded files: member photos, receipts, sermon audio. S3-compatible storage when a bucket is
+# configured (SeaweedFS locally, S3 or R2 in production); local disk otherwise.
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
+S3_BUCKET = env("S3_BUCKET", default="")
+if S3_BUCKET:
+    default_storage = {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {
+            "bucket_name": S3_BUCKET,
+            "endpoint_url": env("S3_ENDPOINT_URL", default=None),
+            "access_key": env("S3_ACCESS_KEY"),
+            "secret_key": env("S3_SECRET_KEY"),
+            "region_name": env("S3_REGION", default="us-east-1"),
+            "addressing_style": "path",
+            "signature_version": "s3v4",
+            # Files hold personal data, so they are private and served through signed links
+            # that expire (NFR-01, NFR-02).
+            "default_acl": None,
+            "querystring_auth": True,
+            "querystring_expire": 60 * 60,
+            "file_overwrite": False,
+        },
+    }
+else:
+    default_storage = {"BACKEND": "django.core.files.storage.FileSystemStorage"}
+STORAGES = {
+    "default": default_storage,
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+}
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # API

@@ -15,6 +15,7 @@ docker compose up -d          # PostgreSQL, Redis, Mailpit, SeaweedFS
 cp .env.example .env
 uv sync
 uv run python manage.py migrate
+uv run python manage.py create_storage_bucket
 uv run python manage.py runserver
 ```
 
