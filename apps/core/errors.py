@@ -11,7 +11,9 @@ import logging
 from typing import Any
 
 from django.conf import settings
+from django.core.exceptions import NON_FIELD_ERRORS
 from django.core.exceptions import PermissionDenied as DjangoPermissionDenied
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.http import Http404, HttpRequest, HttpResponse
 from ninja import NinjaAPI
 from ninja.errors import HttpError
@@ -84,6 +86,25 @@ def error_response(
     return api.create_response(request, body, status=status)
 
 
+def validation_details(exc: DjangoValidationError) -> list[dict[str, Any]]:
+    """Reshape a Django ValidationError like Ninja's request errors: ``[{loc, msg, type}]``."""
+    error_dict = getattr(exc, "error_dict", None)
+    if error_dict is not None:
+        by_field = error_dict.items()
+    else:
+        by_field = [(NON_FIELD_ERRORS, exc.error_list or [])]
+    return [
+        {
+            "loc": [] if field == NON_FIELD_ERRORS else [field],
+            "msg": message,
+            "type": error.code or "invalid",
+        }
+        for field, errors in by_field
+        for error in errors
+        for message in error.messages
+    ]
+
+
 def register_exception_handlers(api: NinjaAPI) -> None:
     @api.exception_handler(APIError)
     def handle_api_error(request: HttpRequest, exc: APIError) -> HttpResponse:
@@ -105,6 +126,20 @@ def register_exception_handlers(api: NinjaAPI) -> None:
             code="validation_error",
             message="Some fields are missing or invalid.",
             details=exc.errors,
+        )
+
+    @api.exception_handler(DjangoValidationError)
+    def handle_django_validation_error(
+        request: HttpRequest, exc: DjangoValidationError
+    ) -> HttpResponse:
+        # Raised by services and model validation, e.g. "this phone number is already in use".
+        return error_response(
+            api,
+            request,
+            status=422,
+            code="validation_error",
+            message="Some fields are missing or invalid.",
+            details=validation_details(exc),
         )
 
     @api.exception_handler(HttpError)

@@ -1,5 +1,5 @@
 import pytest
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.http import Http404
 from ninja import NinjaAPI
 from ninja.errors import HttpError
@@ -39,6 +39,18 @@ def raise_http_error(request):
 @api.get("/crash")
 def crash(request):
     raise RuntimeError("database password is hunter2")
+
+
+@api.get("/service-field-error")
+def raise_field_validation_error(request):
+    raise ValidationError(
+        {"phone": ValidationError("This phone number is already in use.", code="unique")}
+    )
+
+
+@api.get("/service-error")
+def raise_validation_error(request):
+    raise ValidationError("Pledge end date is before its start date.")
 
 
 @api.get("/typed")
@@ -84,6 +96,24 @@ def test_validation_error_lists_the_invalid_fields():
     assert response.status_code == 422
     assert body["code"] == "validation_error"
     assert body["details"][0]["loc"] == ["query", "count"]
+
+
+def test_service_field_errors_use_the_same_details_shape():
+    response = client.get("/service-field-error")
+
+    assert response.status_code == 422
+    assert response.json()["error"]["details"] == [
+        {"loc": ["phone"], "msg": "This phone number is already in use.", "type": "unique"}
+    ]
+
+
+def test_service_non_field_error_has_empty_location():
+    response = client.get("/service-error")
+
+    assert response.status_code == 422
+    assert response.json()["error"]["details"] == [
+        {"loc": [], "msg": "Pledge end date is before its start date.", "type": "invalid"}
+    ]
 
 
 def test_unexpected_error_is_hidden_from_the_client(caplog):
