@@ -25,4 +25,11 @@ uv run python manage.py runserver
 | PostgreSQL | localhost:5433 (user `church`, password `church`) |
 | S3 storage | http://localhost:8333 |
 
+Background jobs (SMS, reminders, imports) need a worker and, for scheduled jobs, beat:
+
+```bash
+uv run celery -A config worker -l info
+uv run celery -A config beat -l info
+```
+
 Install the git hooks once with `uv run pre-commit install`.

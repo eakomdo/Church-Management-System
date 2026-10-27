@@ -5,6 +5,7 @@
 from pathlib import Path
 
 import environ
+from celery.schedules import crontab
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -86,3 +87,22 @@ API_DOCS_ENABLED = env.bool("API_DOCS_ENABLED", default=True)
 NINJA_PAGINATION_CLASS = "apps.core.pagination.PageNumberPagination"
 NINJA_PAGINATION_PER_PAGE = 25
 NINJA_PAGINATION_MAX_PER_PAGE_SIZE = 100
+
+# Background jobs
+CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://localhost:6379/0")
+CELERY_TIMEZONE = TIME_ZONE
+# Most tasks send messages or sync payments; callers never wait on a result.
+CELERY_TASK_IGNORE_RESULT = True
+# Acknowledge after the task finishes, so a worker crash re-queues the task instead of
+# dropping it. Tasks must therefore be safe to run twice.
+CELERY_TASK_ACKS_LATE = True
+CELERY_TASK_REJECT_ON_WORKER_LOST = True
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+CELERY_TASK_TIME_LIMIT = 10 * 60
+CELERY_TASK_SOFT_TIME_LIMIT = 9 * 60
+CELERY_BEAT_SCHEDULE = {
+    "clear-expired-sessions": {
+        "task": "apps.core.tasks.clear_expired_sessions",
+        "schedule": crontab(hour=2, minute=0),
+    },
+}
