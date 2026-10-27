@@ -13,8 +13,12 @@ dependencies = [
 [dependency-groups]
 dev = [
     "django-types>=0.24.0",
+    "factory-boy>=3.3.3",
     "pre-commit>=4.7.0",
     "pyright>=1.1.414",
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+    "pytest-django>=4.14.0",
     "ruff>=0.17.3",
 ]
 
@@ -36,3 +40,17 @@ typeCheckingMode = "standard"
 pythonVersion = "3.14"
 venvPath = "."
 venv = ".venv"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+testpaths = ["apps"]
+python_files = ["test_*.py"]
+addopts = "-ra --strict-markers --cov --cov-report=term-missing:skip-covered"
+
+[tool.coverage.run]
+source = ["apps", "config"]
+omit = ["**/migrations/*", "**/tests/*", "config/asgi.py", "config/wsgi.py", "config/settings/*"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 85
