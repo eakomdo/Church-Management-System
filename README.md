@@ -4,7 +4,8 @@ Backend API for a multi-branch church: members and families, children's check-in
 follow-up, giving and Mobile Money payments, finance, events, messaging and reports. Each branch manages
 its own records; headquarters sees consolidated data across all branches.
 
-The build plan and progress live in [docs/ROADMAP.md](docs/ROADMAP.md).
+The build plan and progress live in [docs/ROADMAP.md](docs/ROADMAP.md). How the code is organised
+and the conventions every module follows are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Local development
 
