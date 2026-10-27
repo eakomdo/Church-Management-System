@@ -1,0 +1,54 @@
+# Backing services for local development. The Django app runs on the host with `uv run`.
+name: church-cms
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: church
+      POSTGRES_PASSWORD: church
+      POSTGRES_DB: church_cms
+    ports:
+      # 5433 on the host, because a system PostgreSQL usually already holds 5432.
+      - "${POSTGRES_HOST_PORT:-5433}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U church -d church_cms"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:8-alpine
+    ports:
+      - "${REDIS_HOST_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Catches every outgoing email. Inbox UI at http://localhost:8025
+  mailpit:
+    image: axllent/mailpit:v1.32
+    ports:
+      - "${MAILPIT_SMTP_HOST_PORT:-1025}:1025"
+      - "${MAILPIT_UI_HOST_PORT:-8025}:8025"
+
+  # S3-compatible object storage standing in for AWS S3 / Cloudflare R2 in production.
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.51
+    command: server -dir=/data -s3 -s3.port=8333 -s3.config=/etc/seaweedfs/s3.json
+    ports:
+      - "${S3_HOST_PORT:-8333}:8333"
+    volumes:
+      - seaweedfs-data:/data
+      - ./docker/seaweedfs/s3.json:/etc/seaweedfs/s3.json:ro
+
+volumes:
+  postgres-data:
+  redis-data:
+  seaweedfs-data:

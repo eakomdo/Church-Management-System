@@ -1,0 +1,14 @@
+{
+  "identities": [
+    {
+      "name": "church-dev",
+      "credentials": [
+        {
+          "accessKey": "church-dev",
+          "secretKey": "church-dev-secret"
+        }
+      ],
+      "actions": ["Admin", "Read", "List", "Tagging", "Write"]
+    }
+  ]
+}

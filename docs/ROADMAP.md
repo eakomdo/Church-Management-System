@@ -17,12 +17,12 @@ adjust when the answer arrives.
 ### Phase 0: Project setup
 
 - [ ] 0.1 Repo and Django project skeleton: split settings, environment variables, `uv`, `ruff`, `pyright`, pre-commit
-- [ ] 0.2 Docker Compose for local services: PostgreSQL, Redis, Mailpit, MinIO
+- [ ] 0.2 Docker Compose for local services: PostgreSQL, Redis, Mailpit, SeaweedFS (S3)
 - [ ] 0.3 Django Ninja: versioned `/api/v1`, OpenAPI docs, standard error format, pagination
 - [ ] 0.4 Tests and CI: pytest-django, factory_boy, coverage, GitHub Actions
 - [ ] 0.5 Shared model conventions: UUID keys, timestamps, `created_by`, branch-owned mixin
 - [ ] 0.6 Celery worker and beat wired to Redis
-- [ ] 0.7 File storage on S3/MinIO with upload validation
+- [ ] 0.7 File storage on S3-compatible storage with upload validation
 - [ ] 0.8 Architecture notes: app layout, service layer, conventions
 
 ### Phase 1: Branches, users and access (FR-01, FR-02, FR-29, FR-30, NFR-01, NFR-03, NFR-14)
