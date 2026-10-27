@@ -40,6 +40,8 @@ typeCheckingMode = "standard"
 pythonVersion = "3.14"
 venvPath = "."
 venv = ".venv"
+# Django models and Ninja schemas override nested Meta/Output classes by design.
+reportIncompatibleVariableOverride = false
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings.test"

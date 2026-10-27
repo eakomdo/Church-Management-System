@@ -13,8 +13,7 @@ class PageNumberPagination(ninja_pagination.PageNumberPagination):
     Sizes are capped by ``NINJA_PAGINATION_MAX_PER_PAGE_SIZE``.
     """
 
-    # Ninja reads the nested Output schema by design, so overriding it is intended.
-    class Output(Schema):  # pyright: ignore[reportIncompatibleVariableOverride]
+    class Output(Schema):
         items: list[Any]
         count: int
         page: int
